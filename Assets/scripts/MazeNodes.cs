@@ -16,7 +16,7 @@ namespace MazeNodes {
         public bool isAlternate = false;
         public ConduitNode a, b;
 
-        ConduitNode(Tile tile, int row, int column) {
+        public ConduitNode(Tile tile, int row, int column) {
             this.tile = tile;
             this.row = row;
             this.column = column;

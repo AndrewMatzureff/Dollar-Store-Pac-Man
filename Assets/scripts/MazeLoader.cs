@@ -43,6 +43,7 @@ public class MazeLoader : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+        new ConduitNode(MazeTiles.Tile.DOUBLE_ELBOW_BOTTOM_LEFT, 0, 0);
         List<string> lines = new List<string>(MazeString.Split('\n'));
         ParseActors(gameObject, lines);
         ParseConduits(lines);

@@ -56,7 +56,7 @@ namespace MazeTiles {
         private static string REGEX_PATTERN_FLAG = string.Format(@":(?<{0}>{{0}}):", MATCH_GROUP_KEY);
         private static Regex REGEX_ENTIRE_STRING = new Regex(@"^.*$");
         private static Regex REGEX_SYMBOL = new Regex(string.Format(REGEX_PATTERN_VAR, "symbol", "."));
-        private static Regex REGEX_IS_JUNCTION = new Regex(string.Format(REGEX_PATTERN_FLAG, "isJunction")); // $@":(?<{MATCH_GROUP_KEY}>isJunction)=(?<{MATCH_GROUP_VALUE}>\b(true|false)\b):"
+        private static Regex REGEX_IS_JUNCTION = new Regex(string.Format(REGEX_PATTERN_FLAG, "isJunction"));
         private static Regex REGEX_IS_NULL = new Regex(string.Format(REGEX_PATTERN_FLAG, "isNull"));
         private static Regex REGEX_IS_ACTOR = new Regex(string.Format(REGEX_PATTERN_FLAG, "isActor"));
         private static Dictionary<char, Tile> TILES_BY_SYMBOL = Tiles().ToDictionary(GetSymbol, tile => tile);

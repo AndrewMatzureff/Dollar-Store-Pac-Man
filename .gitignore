@@ -104,3 +104,7 @@ InitTestScene*.unity*
 /*_[Dd]ata/
 /*.exe
 /*.zip
+
+# Untracked Dev Assets
+.*_[Dd]ev/
+.[Dd]ev/

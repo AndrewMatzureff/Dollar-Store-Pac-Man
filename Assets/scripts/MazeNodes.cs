@@ -112,8 +112,8 @@ namespace MazeNodes {
                 default: throw new ArgumentException(string.Format("Invalid argument: expected a conduit tile at '([row={0}, column={1}])', but got '{2}'.", row, column, node.tile));
             }
 
-            ConduitNode nodeA = build(false, rowA, columnA, visited, mazeGrid);
-            ConduitNode nodeB = build(false, rowB, columnB, visited, mazeGrid);
+            ConduitNode nodeA = build(altA, rowA, columnA, visited, mazeGrid);
+            ConduitNode nodeB = build(altB, rowB, columnB, visited, mazeGrid);
 
             node.a = nodeA == null ? (ConduitNode.isValid(rowA, columnA) && visited.ContainsKey(ConduitNode.key(rowA, columnA)) ? visited[ConduitNode.key(rowA, columnA)] : null) : nodeA;
             node.b = nodeB == null ? (ConduitNode.isValid(rowB, columnB) && visited.ContainsKey(ConduitNode.key(rowB, columnB)) ? visited[ConduitNode.key(rowB, columnB)] : null) : nodeB;

@@ -18,7 +18,7 @@ namespace MazeNodes {
         public Tile tile;
         public int row, column;
 
-        public bool isAlternate = false;
+        public Flip flip;
         public ConduitNode a, b;
 
         public ConduitNode(Tile tile, int row, int column) {
@@ -44,7 +44,7 @@ namespace MazeNodes {
             return (row | column) >= 0 && Math.Max(row, column) < MAX_LENGTH_PER_GRID_DIMENSION; // row && column => [0, MAX_LENGTH_PER_GRID_DIMENSION)
         }
 
-        public static ConduitNode build(bool allowAlternate, int row, int column, Dictionary<int, ConduitNode> visited, List<string> mazeGrid) {
+        public static ConduitNode build(Flip flip, int row, int column, Dictionary<int, ConduitNode> visited, List<string> mazeGrid) {
             if ((row | column) < 0     ||
                  row >= mazeGrid.Count ||
                  column >= mazeGrid[row].Length) {
@@ -57,40 +57,42 @@ namespace MazeNodes {
             char symbol = mazeGrid[row][column];
             ConduitNode node = new ConduitNode(Util.Tile(symbol), row, column);
 
-            node.isAlternate = allowAlternate && !Util.IsJunction(node.tile);
+            if (!Util.IsJunction(node.tile)) node.flip = flip;
+            //node.isAlternate = allowAlternate && !Util.IsJunction(node.tile);
             visited[key] = node;
 
             int rowA, columnA;
             int rowB, columnB;
-            bool altA, altB;
+            //bool altA, altB;
+            Flip altA, altB;
             switch (node.tile) {
                 // Bends
                 case Tile.DOUBLE_ELBOW_TOP_LEFT:
                 case Tile.SINGLE_ELBOW_TOP_LEFT:
                 case Tile.GHOST_HOME_TOP_LEFT:
-                    rowA = row; columnA = column + 1; altA = node.tile != Tile.DOUBLE_ELBOW_TOP_LEFT; // →
-                    rowB = row + 1; columnB = column; altB = node.tile != Tile.DOUBLE_ELBOW_TOP_LEFT; // ↓
+                    rowA = row; columnA = column + 1; altA = node.tile != Tile.DOUBLE_ELBOW_TOP_LEFT ? Flip.Y : Flip.NONE; // →
+                    rowB = row + 1; columnB = column; altB = node.tile != Tile.DOUBLE_ELBOW_TOP_LEFT ? Flip.X : Flip.NONE; // ↓
                     break;
 
                 case Tile.DOUBLE_ELBOW_TOP_RIGHT:
                 case Tile.SINGLE_ELBOW_TOP_RIGHT:
                 case Tile.GHOST_HOME_TOP_RIGHT:
-                    rowA = row; columnA = column - 1; altA = node.tile != Tile.DOUBLE_ELBOW_TOP_RIGHT; // ←
-                    rowB = row + 1; columnB = column; altB = node.tile == Tile.DOUBLE_ELBOW_TOP_RIGHT; // ↓
+                    rowA = row; columnA = column - 1; altA = node.tile != Tile.DOUBLE_ELBOW_TOP_RIGHT ? Flip.Y : Flip.NONE; // ←
+                    rowB = row + 1; columnB = column; altB = node.tile == Tile.DOUBLE_ELBOW_TOP_RIGHT ? Flip.X : Flip.NONE; // ↓
                     break;
 
                 case Tile.DOUBLE_ELBOW_BOTTOM_LEFT:
                 case Tile.SINGLE_ELBOW_BOTTOM_LEFT:
                 case Tile.GHOST_HOME_BOTTOM_LEFT:
-                    rowA = row - 1; columnA = column; altA = node.tile != Tile.DOUBLE_ELBOW_BOTTOM_LEFT; // ↑
-                    rowB = row; columnB = column + 1; altB = node.tile == Tile.DOUBLE_ELBOW_BOTTOM_LEFT; // →
+                    rowA = row - 1; columnA = column; altA = node.tile != Tile.DOUBLE_ELBOW_BOTTOM_LEFT ? Flip.X : Flip.NONE; // ↑
+                    rowB = row; columnB = column + 1; altB = node.tile == Tile.DOUBLE_ELBOW_BOTTOM_LEFT ? Flip.Y : Flip.NONE; // →
                     break;
 
                 case Tile.DOUBLE_ELBOW_BOTTOM_RIGHT:
                 case Tile.SINGLE_ELBOW_BOTTOM_RIGHT:
                 case Tile.GHOST_HOME_BOTTOM_RIGHT:
-                    rowA = row - 1; columnA = column; altA = node.tile == Tile.DOUBLE_ELBOW_BOTTOM_RIGHT; // ↑
-                    rowB = row; columnB = column - 1; altB = node.tile == Tile.DOUBLE_ELBOW_BOTTOM_RIGHT; // ←
+                    rowA = row - 1; columnA = column; altA = node.tile == Tile.DOUBLE_ELBOW_BOTTOM_RIGHT ? Flip.X : Flip.NONE; // ↑
+                    rowB = row; columnB = column - 1; altB = node.tile == Tile.DOUBLE_ELBOW_BOTTOM_RIGHT ? Flip.Y : Flip.NONE; // ←
                     break;
 
                 // Pipes
@@ -99,14 +101,14 @@ namespace MazeNodes {
                 case Tile.GHOST_DOOR_LEFT:
                 case Tile.GHOST_DOORWAY:
                 case Tile.GHOST_DOOR_RIGHT:
-                    rowA = row; columnA = column - 1; altA = allowAlternate && node.tile == Tile.DOUBLE_PIPE_HORIZONTAL;
-                    rowB = row; columnB = column + 1; altB = allowAlternate && node.tile == Tile.DOUBLE_PIPE_HORIZONTAL;
+                    rowA = row; columnA = column - 1; altA = flip;// node.tile == Tile.DOUBLE_PIPE_HORIZONTAL ? allowAlternate;
+                    rowB = row; columnB = column + 1; altB = flip;// node.tile == Tile.DOUBLE_PIPE_HORIZONTAL ? allowAlternate;
                     break;
 
                 case Tile.DOUBLE_PIPE_VERTICAL:
                 case Tile.SINGLE_PIPE_VERTICAL:
-                    rowA = row - 1; columnA = column; altA = allowAlternate && node.tile == Tile.DOUBLE_PIPE_VERTICAL;
-                    rowB = row + 1; columnB = column; altB = allowAlternate && node.tile == Tile.DOUBLE_PIPE_VERTICAL;
+                    rowA = row - 1; columnA = column; altA = flip;// allowAlternate && node.tile == Tile.DOUBLE_PIPE_VERTICAL;
+                    rowB = row + 1; columnB = column; altB = flip;// allowAlternate && node.tile == Tile.DOUBLE_PIPE_VERTICAL;
                     break;
 
                 default: throw new ArgumentException(string.Format("Invalid argument: expected a conduit tile at '([row={0}, column={1}])', but got '{2}'.", row, column, node.tile));

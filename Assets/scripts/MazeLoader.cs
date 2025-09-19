@@ -158,7 +158,6 @@ public class MazeLoader : MonoBehaviour {
 
                 if (Util.IsActor(tiles[gameObject])) {
                     // spawn actor
-                    //float offsetX = columns 
                     // TODO: find a way to centralize the pixels per unit value between the spritesheet and the position helper in a constant.
                     Instantiate(prefabsByTile[tiles[gameObject]], maze.transform.position + PositionAt(c, r, columns, rows, 16, 100f, subcellOffset), Quaternion.identity);
                     gameObject = null;
@@ -171,11 +170,7 @@ public class MazeLoader : MonoBehaviour {
             Destroy(gameObject);
         }
 
-        //tiles.Select(kv => "");
-
         tiles.Clear();
-        // Object o = ConduitNode.class;
-        // ConduitNode.build(false, 0,0,new Dictionary<int, ConduitNode>(),mazeGrid);
     }
 
     private Vector3 PositionAt(int c, int r, int columns, int rows, int tilePixelDimensions, float pixelsPerUnit, float subcellOffset) {
@@ -197,12 +192,11 @@ public class MazeLoader : MonoBehaviour {
             for (int c = 0; c < columns; c++) {
                 int row = r, column = c;
                 tileWrapper[0] = Util.Tile(mazeGrid[r][c]);
-                // // System.out.print("\"" + mazeGrid.get(row).charAt(column) + "\" ");
 
                 var result = (
                   from tile in tileWrapper
                   where Util.IsJunction(tile)
-                  select ConduitNode.build(false, row, column, visited, mazeGrid)
+                  select ConduitNode.build(Flip.NONE, row, column, visited, mazeGrid)
                 ).DefaultIfEmpty(null).Single();
                 if (result != null) conduitTrees.Add(result);
             }
@@ -216,16 +210,14 @@ public class MazeLoader : MonoBehaviour {
         char[,] chars = new char[mazeGrid.Count, mazeGrid.Select(row => row.Length).Aggregate(0, Math.Max)];
 
         (from root in conduitGraph where root != null select root).ToList().ForEach(
-          //root => ParseConduits(root, node => chars[node.row, node.column] = Util.GetSymbol(node.tile))
           root => ParseConduits(root, node => {
               chars[node.row, node.column] = Util.GetSymbol(node.tile);
               Debug.Log(String.Format("chars[{0}, {1}]: {2}", node.row, node.column, chars[node.row, node.column]));
               // TODO: find a way to centralize the pixels per unit value between the spritesheet and the position helper in a constant.
               GameObject cell = Instantiate(prefabsByTile[node.tile], maze.transform.position + PositionAt(node.column, node.row, chars.GetLength(1), chars.GetLength(0), 16, 100f, 0), Quaternion.identity, maze.transform);
-              cell.name = String.Format("{0} @({1},{2}): {3}", node.tile, node.column, node.row, node.isAlternate ? "alt" : "default");
-              //cell.GetComponent<SpriteRenderer>().flipX = false;
-              //cell.GetComponent<SpriteRenderer>().flipY = false;
-              if (node.isAlternate) cell.transform.localScale = new Vector3(-1, -1, 1);
+              cell.name = String.Format("{0} @({1},{2}): ~{3}", node.tile, node.column, node.row, node.flip);
+              cell.GetComponent<SpriteRenderer>().flipX = (node.flip & Flip.X) != 0;
+              cell.GetComponent<SpriteRenderer>().flipY = (node.flip & Flip.Y) != 0;
           })
         );
 
@@ -248,14 +240,6 @@ public class MazeLoader : MonoBehaviour {
         ConduitNode bc = root.b;
 
         while ((!visited.Contains(ac) || !visited.Contains(bc)) && (ac != null || bc != null)) {
-            // System.out.printf(
-            //   "{ap:%s,bp:%s,ac:%s,bc:%s}%n",
-            //   ap == null ? ap : ap.tile.symbol,
-            //   bp == null ? bp : bp.tile.symbol,
-            //   ac == null ? ac : ac.tile.symbol,
-            //   bc == null ? bc : bc.tile.symbol
-            // );
-
             if (ac != null) {
                 ConduitNode temp = ac;
                 ac = ac.a != ap ? ac.a : ac.b != ap ? ac.b : null;

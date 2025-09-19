@@ -7,6 +7,8 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace MazeTiles {
+    [Flags]
+    public enum Flip { NONE, X, Y, BOTH }
     public enum Tile {
         // Empty
         [EnumMember(Value = ":symbol= :isNull:")] NULL_SPACE,
